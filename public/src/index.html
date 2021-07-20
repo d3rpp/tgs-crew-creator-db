@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+
+	<link crossorigin="anonymous" href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+	<link rel="stylesheet" href="./style/style.scss">
+	<script crossorigin="anonymous"
+		src="https://polyfill.io/v3/polyfill.js?features=Map%2CObject.defineProperties%2CObject.defineProperty%2Ces6"
+		async defer></script>
+
+	<script src="./app.ts"></script>
+
+	<title>TGS Rowing Club Crew Creator</title>
+</head>
+
+<body>
+	<header>
+		<div class="left">
+			Takapuna Grammar School Rowing Club Crew Creator
+		</div>
+		<div class="right">
+			<ul>
+				<li>
+					<a href="#/member-editor">
+						<p>Member Editor</p>
+					</a>
+				</li>
+				<li>
+					<a href="#/crew-editor">
+						<p>Crew Editor</p>
+					</a>
+				</li>
+				<li>
+					<a href="#/crew-display">
+						<p>Crew Display</p>
+					</a>
+				</li>
+			</ul>
+
+			<span id="indicator"></span>
+		</div>
+	</header>
+	<main class="wrapper">
+		<!-- 
+			
+			Member Editor
+
+		 -->
+
+		<!-- #region Member Editor -->
+		<section class="page" id="member-editor">
+			<div class="container">
+				<div class="left">
+					<div class="viewer">
+
+					</div>
+					<div class="editor">
+						<div class="row">
+							<div class="input name">
+								<input type="text" required class="nameInput">
+								<span class="highlight"></span>
+								<span class="bar"></span>
+								<label>Name</label>
+							</div>
+						</div>
+						<div class="row">
+							<!-- Age Group Select and Novice Toggle -->
+							<div class="select">
+								<select class="select-text age-group" required>
+									<option value="" disabled selected></option>
+									<option value="U15">&nbsp;&nbsp;U15</option>
+									<option value="U16">&nbsp;&nbsp;U16</option>
+									<option value="U17">&nbsp;&nbsp;U17</option>
+									<option value="U18">&nbsp;&nbsp;U18</option>
+								</select>
+								<span class="select-highlight"></span>
+								<span class="select-bar"></span>
+								<label class="select-label">Age Group</label>
+							</div>
+
+							<div class="toggle">
+								<input type="checkbox" id="unchecked" class="cbx hidden novice" />
+								<label for="unchecked" class="lbl"></label>
+							</div>
+							<span class="nov-label">Novice</span>
+
+						</div>
+						<div class="row">
+							<!-- Gender Select and Buttons -->
+							<div class="select">
+								<select class="select-text gender" required>
+									<option value="" disabled selected></option>
+									<option value="M">&nbsp;&nbsp;M</option>
+									<option value="F">&nbsp;&nbsp;F</option>
+								</select>
+								<span class="select-highlight"></span>
+								<span class="select-bar"></span>
+								<label class="select-label">Gender</label>
+							</div>
+
+							<span style="flex: 1 1 auto;"></span>
+							<div class="buttons">
+								<button class="clear">
+									Clear
+								</button>
+								<button class="submit">
+									Save
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="table">
+					<table>
+						<tr class="header">
+							<th>Gender</th>
+							<th>Age Group</th>
+							<th class="big">Name</th>
+							<th>Actions</th>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+		</section>
+
+		<!-- #endregion -->
+
+		<!-- 
+
+			Crew Editor
+
+		 -->
+		<!-- #region Crew Editor -->
+		<section class="page" id="crew-editor">
+			<div class="left">
+				<div class="editor">
+				</div>
+				<div class="fab">+</div>
+				<div class="selector hidden">
+					<button class="single">1x</button>
+					<button class="double">2x-/2-</button>
+					<button class="coxless-quad">4x-/4-</button>
+					<button class="coxed-quad">4x+/4+</button>
+					<button class="octi">8x+/8+</button>
+				</div>
+			</div>
+			<div class="right">
+				<table>
+					<tr class="header">
+						<!-- <th class="small"></th> -->
+						<th>Gender/Age Group</th>
+						<th class="big">Name</th>
+					</tr>
+				</table>
+			</div>
+		</section>
+		<!-- #endregion -->
+
+		<!-- 
+
+			Crew Display
+
+		 -->
+		<!-- #region Crew Display -->
+		<section class="page" id="crew-display">
+			<div class="container">
+
+			</div>
+		</section>
+		<!-- #endregion -->
+	</main>
+	</div>
+</body>
+
+</html>
