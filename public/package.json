@@ -3,7 +3,12 @@
 		"dev": "parcel watch ./src/index.html",
 		"dev-build": "parcel build ./src/index.html --public-url .",
 		"build": "clear;npm run clean; npm run dev-build",
-		"clean": "rm -rf ./dist/*"
+		"clean": "rm -rf ./dist/*",
+
+		"win:dev":"parcel watch src/index.html",
+		"win:dev-build":"parcel build src/index.html --public-url .",
+		"win:build": "cls && npm run win:dev-build",
+		"win:clean": "rmdir /Q /S dist"
 	},
 	"devDependencies": {
 		"@parcel/transformer-sass": "^2.0.0-beta.2",

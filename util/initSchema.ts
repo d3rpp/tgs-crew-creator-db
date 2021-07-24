@@ -12,13 +12,14 @@ createConnection({
 	password: '',
 	database: 'HUDSON_CURREN_TGS_CREW_CREATOR',
 	entities: ENTITIES,
+	synchronize: true
 })
 	.then(async (c) => {
-		try {
-			c.synchronize(true);
-		} catch (e) {
-			console.error('something happened what the bruh');
-		}
+		// try {
+		// 	c.synchronize(true);
+		// } catch (e) {
+		// 	console.error('something happened what the bruh');
+		// }
 		console.log('DONE');
 		c.close();
 		process.exit(0);
