@@ -54,7 +54,6 @@ const main = () => {
 	})
 		.then(async (conn) => {
 			connection = conn;
-			conn.synchronize(true);
 
 			console.log(c.bold.yellow('Adding JSON Module'));
 			app.use(express.json());
