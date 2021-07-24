@@ -4,14 +4,17 @@
 	"description": "The Crew Creator Application for the Takapuna Grammar School Rowing Club",
 	"main": "./src/index.ts",
 	"scripts": {
-		// Linux/MacOS
+		
+		"unix":"npm run unix:init; npm run unix:fe:build; npm run unix:dev",
 		"unix:dev": "rm -rf build;tsc-watch --excludeDirectories 'public' --onSuccess \"node ./build/index.js\" ",
+		"unix:fe:build":"cd ./public; npm i; npm run build",
 		"unix:init": "npm i; cd public; npm i ;cd ..; npm run unix:init:db",
 		"unix:init:db": "npm run unix:init:drop-db; cd ./util; rm -rf ./.tmp; echo \"setting up db\"; echo \"compiling\"; tsc ./initSchema.ts --outDir ./.tmp --experimentalDecorators --emitDecoratorMetadata;echo \"running\"; node ./.tmp/util/initSchema.js; rm -rf ./.tmp",
 		"unix:init:drop-db": "mysql -u root -e \"DROP DATABASE IF EXISTS HUDSON_CURREN_TGS_CREW_CREATOR; CREATE DATABASE IF NOT EXISTS HUDSON_CURREN_TGS_CREW_CREATOR;\"",
-		// WINDOWS
-		// NONE OF THESE ARE TESTED
+	
+		"win":"npm run win:init && npm run win:fe:build && npm run win:dev",
 		"win:dev": "rmdir .\\build && tsc-watch --excludeDirectories 'public' --onSuccess \"node ./build/index.js\"",
+		"win:fe:build":"cd .\\public && npm i && npm run build",
 		"win:init": "npm i && cd public && npm i && cd .. && npm run win:init:db",
 		"win:init:db": "npm run win:init:drop-db && cd .\\util && rmdir .\\.tmp && echo \"Setting Up DB\" && echo \"COMPILING\" && tsc .\\initSchema.ts --outDir .\\.tmp --experimentalDecorators --emitDecoratorMetadata && echo \"running\" && node .\\.tmp\\util\\initSchema.js && rmdir .\\.tmp",
 		"win:init:drop-db": "mysql -u root -e \"DROP DATABASE IF EXISTS HUDSON_CURREN_TGS_CREW_CREATOR; CREATE DATABASE IF NOT EXISTS HUDSON_CURREN_TGS_CREW_CREATOR;\""

@@ -30,6 +30,12 @@ In MacOS and Linux, the commands are the same, use
 to install all dependencies, then use
 
 ```
+	npm run unix:fe:build
+```
+
+to build the front end
+
+```
 	npm run unix:dev
 ```
 
@@ -45,6 +51,12 @@ this is untested but it should work, let me know if it doesnt idk windows its ba
 ```
 
 to install dependencies
+
+```
+	npm run win:fe:build
+```
+
+to build the front end
 
 ```
 	npm run win:dev
