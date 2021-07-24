@@ -13,6 +13,7 @@ _now using MySQL_
 to run this, you require
 
 - MySQL Server on port 3306 (this is the default)
+  - This includes the server AND the shell client as the config script uses the shell client in order to reset the DB
 - NodeJS
 - npm (comes with NodeJS)
 - an internet connection
