@@ -7,8 +7,9 @@ import {
 	JoinTable,
 	OneToMany,
 } from 'typeorm';
-import Coach from './Coach';
-import Seat from './Seat';
+import Coach from './Coach.entity';
+import { BoatSize } from './common';
+import Seat from './Seat.entity';
 
 @Entity({ name: 'crews' })
 export default class Crew {
@@ -18,7 +19,7 @@ export default class Crew {
 		oars: string,
 		coach: Coach,
 		seats: Seat[],
-		size: 1 | 2 | 4 | 5 | 9
+		size: BoatSize
 	) {
 		this.crewName = name;
 		this.boatName = boat;
@@ -52,6 +53,6 @@ export default class Crew {
 	@JoinTable()
 	seats: Seat[];
 
-	@Column()
-	size: 1 | 2 | 4 | 5 | 9;
+	@Column({ length: 1 })
+	size: BoatSize;
 }

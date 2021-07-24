@@ -1,11 +1,5 @@
-import {
-	Entity,
-	PrimaryGeneratedColumn,
-	Column,
-	OneToOne,
-	Unique,
-} from 'typeorm';
-import Crew from './Crew';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import Crew from './Crew.entity';
 
 @Entity({ name: 'coaches' })
 export default class Coach {
@@ -18,6 +12,6 @@ export default class Coach {
 	// @ts-ignore
 	id: number;
 
-	@Column({ unique: true })
+	@Column({ unique: true, length: 30 })
 	name: string;
 }

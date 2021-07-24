@@ -14,6 +14,6 @@ type Gender = 'M' | 'F';
  */
 type AgeGroup = 'U15' | 'U16' | 'U17' | 'U18';
 
-type BoatSize = 1 | 2 | 4 | 5 | 9;
+type BoatSize = '1' | '2' | '4' | '5' | '9';
 
 export { Gender, AgeGroup, BoatSize };

@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { AgeGroup, Gender } from './common';
 
-@Entity({ name: 'crew_memebers' })
+@Entity({ name: 'crew_members' })
 export default class CrewMember {
 	constructor(name: string, ageGroup: AgeGroup, gender: Gender) {
 		this.name = name;
@@ -13,10 +13,10 @@ export default class CrewMember {
 	// @ts-ignore
 	id: number;
 
-	@Column()
+	@Column({ length: 30 })
 	name: string;
 
-	@Column({ name: 'age_group' })
+	@Column()
 	ageGroup: AgeGroup;
 
 	@Column()

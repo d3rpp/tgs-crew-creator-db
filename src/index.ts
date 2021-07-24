@@ -1,15 +1,17 @@
 import express from 'express';
+import { Server } from 'http';
 import * as c from 'ansi-colors';
 import { apiRouter } from './routes';
-import { createConnection } from 'typeorm';
+import { createConnection, Connection } from 'typeorm';
 import ENTITIES from './entities';
 
+// #region print messaged
 const printSuccessMessage = () => {
-	const b = c.bold.green('|');
+	const b = c.green('|');
 
 	console.clear();
 	console.log(
-		c.bold.green('\n\t|------------------- SUCCESS ------------------|')
+		c.green('\n\t|------------------- SUCCESS ------------------|')
 	);
 	console.log(`\t${b}                                              ${b}`);
 	console.log(`\t${b} Server is Listening on:                      ${b}`);
@@ -26,13 +28,17 @@ const printSuccessMessage = () => {
 		)}                                   ${b}`
 	);
 	console.log(`\t${b}                                              ${b}`);
-	console.log(
-		c.bold.green('\t|------------------- SUCCESS ------------------|')
-	);
+	console.log(c.green('\t|------------------- SUCCESS ------------------|'));
 	console.log();
 
 	// console.log(process.cwd() + '/public/dist/');
 };
+//#endregion
+
+console.log(c.bold.yellow('Creating Application'));
+const app = express();
+let server: Server | null | undefined = null;
+let connection: Connection | null | undefined = null;
 
 const main = () => {
 	console.clear();
@@ -46,9 +52,9 @@ const main = () => {
 		database: 'HUDSON_CURREN_TGS_CREW_CREATOR',
 		entities: ENTITIES,
 	})
-		.then((_conn) => {
-			console.log(c.bold.yellow('Creating Application'));
-			const app = express();
+		.then(async (conn) => {
+			connection = conn;
+			conn.synchronize(true);
 
 			console.log(c.bold.yellow('Adding JSON Module'));
 			app.use(express.json());
@@ -60,7 +66,7 @@ const main = () => {
 			app.use('/', express.static(process.cwd() + '/public/dist/'));
 
 			console.log(c.bold.yellow('Starting App Listening Cycle'));
-			app.listen(3000);
+			server = app.listen(3000);
 
 			printSuccessMessage();
 		})
@@ -70,5 +76,24 @@ const main = () => {
 			console.error(err);
 		});
 };
+
+const shutDown = () => {
+	if (connection != null && connection != undefined) {
+		console.log('closing connection to database');
+		connection.close();
+	} else process.exit(1);
+
+	if (server != null && server != undefined) {
+		console.log('shutting down server');
+		server.close();
+	} else process.exit(1);
+
+	console.log('done');
+	process.exit(0);
+};
+
+process.on('exit', shutDown);
+process.on('SIGINT', shutDown);
+process.on('SIGTERM', shutDown);
 
 main();

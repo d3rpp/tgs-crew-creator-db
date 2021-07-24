@@ -1,6 +1,6 @@
 import { Entity, JoinTable, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 // import Crew from './Crew';
-import CrewMember from './CrewMember';
+import CrewMember from './CrewMember.entity';
 // import Crew from './Crew';
 
 @Entity({ name: 'seats' })

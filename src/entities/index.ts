@@ -1,6 +1,6 @@
-import Coach from './Coach';
-import Crew from './Crew';
-import CrewMember from './CrewMember';
-import Seat from './Seat';
+import Coach from './Coach.entity';
+import Crew from './Crew.entity';
+import CrewMember from './CrewMember.entity';
+import Seat from './Seat.entity';
 
 export default [Coach, Crew, CrewMember, Seat];
