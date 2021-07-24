@@ -17,33 +17,38 @@ export const router = Router();
  *
  */
 router.post('/', async (req: Request, res: Response) => {
-	// console.log(req.body);
-
-	if (!req.body || req.body == {}) {
-		res.status(400).send();
-		return;
-	}
-
-	const repo = getRepository(CrewMember);
-
-	let name: string, ageGroup: AgeGroup, gender: Gender;
 
 	try {
-		let int = req.body as CrewMemberInterface;
+		// console.log(req.body);
 
-		name = int.name ? int.name : 'unnamed';
-		ageGroup = int.ageGroup ? int.ageGroup : 'U18';
-		gender = int.gender ? int.gender : 'M';
+		if (!req.body || req.body == {}) {
+			res.status(400).send();
+			return;
+		}
+
+		const repo = getRepository(CrewMember);
+
+		let name: string, ageGroup: AgeGroup, gender: Gender;
+
+		try {
+			let int = req.body as CrewMemberInterface;
+
+			name = int.name ? int.name : 'unnamed';
+			ageGroup = int.ageGroup ? int.ageGroup : 'U18';
+			gender = int.gender ? int.gender : 'M';
+		} catch (e) {
+			res.status(400).send();
+			return;
+		}
+
+		let toSave = new CrewMember(name!, ageGroup!, gender!);
+
+		let { id } = await repo.save(toSave);
+
+		res.json({ status: 'success', id: id }).status(201).send();
 	} catch (e) {
-		res.status(400).send();
-		return;
+		console.error(e);
 	}
-
-	let toSave = new CrewMember(name!, ageGroup!, gender!);
-
-	let { id } = await repo.save(toSave);
-
-	res.json({ status: 'success', id: id }).status(201).send();
 });
 
 /**
@@ -52,9 +57,14 @@ router.post('/', async (req: Request, res: Response) => {
  *
  */
 router.get('/', async (req: Request, res: Response) => {
-	const repo = getRepository(CrewMember);
 
-	res.status(200).json(await repo.find());
+	try {
+		const repo = getRepository(CrewMember);
+
+		res.status(200).json(await repo.find());
+	} catch (e) {
+		console.error(e);
+	}
 });
 
 /**
@@ -64,27 +74,32 @@ router.get('/', async (req: Request, res: Response) => {
  */
 
 router.put('/:id', async (req: Request, res: Response) => {
-	if (!req.body || req.body == {}) {
-		res.status(400).send();
-		return;
-	}
 
-	const repo = getRepository(CrewMember);
+	try {
+		if (!req.body || req.body == {}) {
+			res.status(400).send();
+			return;
+		}
 
-	let found = await repo.findOne({ id: +req.params.id });
+		const repo = getRepository(CrewMember);
 
-	if (!found) {
-		res.status(404).json({ message: 'not found' }).send();
-	} else {
-		let int = req.body as CrewMemberInterface;
+		let found = await repo.findOne({ id: +req.params.id });
 
-		found.ageGroup = int.ageGroup;
-		found.gender = int.gender;
-		found.name = int.name;
+		if (!found) {
+			res.status(404).json({ message: 'not found' }).send();
+		} else {
+			let int = req.body as CrewMemberInterface;
 
-		repo.save(found);
+			found.ageGroup = int.ageGroup;
+			found.gender = int.gender;
+			found.name = int.name;
 
-		res.status(200).json({ message: 'done', id: found.id });
+			repo.save(found);
+
+			res.status(200).json({ message: 'done', id: found.id });
+		}
+	} catch (e) {
+		console.error(e);
 	}
 });
 
@@ -94,24 +109,28 @@ router.put('/:id', async (req: Request, res: Response) => {
  *
  */
 router.delete('/:id', async (req: Request, res: Response) => {
-	if (req.params.id) {
-		const repo = getRepository(CrewMember);
+	try {
+		if (req.params.id) {
+			const repo = getRepository(CrewMember);
 
-		// let repo.findOne(+req.params.id);
+			// let repo.findOne(+req.params.id);
 
-		if (await repo.findOne({ id: +req.params.id })) {
-			try {
-				await repo.delete({ id: +req.params.id });
-			} catch (e) {
-				res.json({ message: 'invalid id' }).status(400).send();
+			if (await repo.findOne({ id: +req.params.id })) {
+				try {
+					await repo.delete({ id: +req.params.id });
+				} catch (e) {
+					res.json({ message: 'invalid id' }).status(400).send();
+				}
+
+				res.json({ message: 'done', id: req.params.id }).status(200).send();
+			} else {
+				res.json({ message: 'not found' }).status(404).send();
 			}
-
-			res.json({ message: 'done', id: req.params.id }).status(200).send();
 		} else {
-			res.json({ message: 'not found' }).status(404).send();
+			res.json({ message: 'error has occured' }).status(500).send();
 		}
-	} else {
-		res.json({ message: 'error has occured' }).status(500).send();
+	} catch (e) {
+		console.error(e);
 	}
 });
 
