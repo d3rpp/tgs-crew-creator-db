@@ -24,6 +24,16 @@ to run this, you require
 In MacOS and Linux, the commands are the same, use
 
 ```
+	npm run unix
+```
+
+to do everything, this will
+- install all dependencies
+- build the front end
+- start the server
+you can also run the scripts individually
+
+```
 	npm run unix:init
 ```
 
@@ -47,6 +57,16 @@ to start the server, this'll also serve the front-end
 this is untested but it should work, let me know if it doesnt idk windows its bad
 
 ```
+	npm run win
+```
+
+to do everything, this will
+- install all dependencies
+- build the front end
+- start the server
+you can also run the scripts individually
+
+```
 	npm run win:init
 ```
 
@@ -61,6 +81,8 @@ to build the front end
 ```
 	npm run win:dev
 ```
+
+to start the server, this'll also serve the front-end
 
 <br /><br /><br />
 
