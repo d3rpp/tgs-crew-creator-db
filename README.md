@@ -9,14 +9,14 @@ _now using MySQL_
 	- [Windows](#windows)
 - [About](#about)
 
-#Re quirements
+#Requirements
 to run this, you require
 
 - MySQL Server on port 3306 (this is the default)
-  - This includes the server AND the shell client as the config script uses the shell client in order to reset the DB
+  - This includes the server AND C++ bindings (which're installed by default)
 - NodeJS
 - npm (comes with NodeJS)
-- an internet connection
+- an internet connection (because this thing as a *few* dependencies)
 
 <br /><br /><br />
 
@@ -94,3 +94,5 @@ this is the TGS Rowing Club Crew Creator MySQL port, it is being used as my NCEA
 have fun fucking with it, feel free to clone it and make it your own instead
 
 idc...
+
+this is the first time i've ever actually made a full stack application

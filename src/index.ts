@@ -85,14 +85,14 @@ const shutDown = () => {
 	if (server != null && server != undefined) {
 		console.log('shutting down server');
 		server.close();
-	} else process.exit(1);
+	} else process.exit(2);
 
 	console.log('done');
 	process.exit(0);
 };
 
 process.on('exit', shutDown);
-process.on('SIGINT', shutDown);
-process.on('SIGTERM', shutDown);
+// process.on('SIGINT', shutDown);
+// process.on('SIGTERM', shutDown);
 
 main();

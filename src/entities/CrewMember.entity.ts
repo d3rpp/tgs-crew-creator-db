@@ -16,9 +16,9 @@ export default class CrewMember {
 	@Column({ length: 30 })
 	name: string;
 
-	@Column()
+	@Column({ length: 3 })
 	ageGroup: AgeGroup;
 
-	@Column()
+	@Column({ length: 1 })
 	gender: Gender;
 }

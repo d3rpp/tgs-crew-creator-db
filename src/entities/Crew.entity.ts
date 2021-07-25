@@ -18,14 +18,14 @@ export default class Crew {
 		boat: string,
 		oars: string,
 		coach: Coach,
-		seats: Seat[],
+		// seats: Seat[],
 		size: BoatSize
 	) {
 		this.crewName = name;
 		this.boatName = boat;
 		this.oars = oars;
 		this.coach = coach;
-		this.seats = seats;
+		// this.seats = seats;
 		this.size = size;
 	}
 
@@ -33,25 +33,25 @@ export default class Crew {
 	// @ts-ignore
 	id: number;
 
-	@Column()
+	@Column({ length: 30 })
 	crewName: string;
 
-	@Column()
+	@Column({ length: 30 })
 	boatName: string;
 
-	@Column()
+	@Column({ length: 30 })
 	oars: string;
 
 	@OneToOne((_) => Coach, (c) => c.id, { cascade: true, primary: true })
 	@JoinTable()
 	coach: Coach;
 
-	@OneToMany((_) => Seat, (s) => s.crewMember, {
-		cascade: true,
-		primary: false,
-	})
-	@JoinTable()
-	seats: Seat[];
+	// @OneToMany((_) => Seat, (s) => s.crewMember, {
+	// 	cascade: true,
+	// 	primary: false,
+	// })
+	// @JoinTable()
+	// seats: Seat[];
 
 	@Column({ length: 1 })
 	size: BoatSize;

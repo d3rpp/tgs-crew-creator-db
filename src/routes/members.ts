@@ -17,7 +17,6 @@ export const router = Router();
  *
  */
 router.post('/', async (req: Request, res: Response) => {
-
 	try {
 		// console.log(req.body);
 
@@ -27,6 +26,20 @@ router.post('/', async (req: Request, res: Response) => {
 		}
 
 		const repo = getRepository(CrewMember);
+
+		// get all members and map them to lower case
+		const members = await repo.find({
+			where: {
+				name: {
+					$like: `%${req.body.name.toLowerCase()}%`,
+				},
+			},
+		});
+
+		if (members) {
+			res.status(409).send();
+			return;
+		}
 
 		let name: string, ageGroup: AgeGroup, gender: Gender;
 
@@ -57,11 +70,36 @@ router.post('/', async (req: Request, res: Response) => {
  *
  */
 router.get('/', async (req: Request, res: Response) => {
-
 	try {
 		const repo = getRepository(CrewMember);
 
 		res.status(200).json(await repo.find());
+	} catch (e) {
+		console.error(e);
+	}
+});
+
+router.get('/:id', async (req: Request, res: Response) => {
+	try {
+		const repo = getRepository(CrewMember);
+
+		if (+req.params.id <= 0) {
+			res.json({ message: 'not found' }).status(404).send();
+			return;
+		}
+
+		let b = await repo.findOne({ id: +req.params.id });
+
+		if (b) {
+			res.json({
+				id: b.id,
+				name: b.name,
+				ageGroup: b.ageGroup,
+				gender: b.gender,
+			})
+				.status(200)
+				.send();
+		}
 	} catch (e) {
 		console.error(e);
 	}
@@ -74,7 +112,6 @@ router.get('/', async (req: Request, res: Response) => {
  */
 
 router.put('/:id', async (req: Request, res: Response) => {
-
 	try {
 		if (!req.body || req.body == {}) {
 			res.status(400).send();
@@ -122,7 +159,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
 					res.json({ message: 'invalid id' }).status(400).send();
 				}
 
-				res.json({ message: 'done', id: req.params.id }).status(200).send();
+				res.json({ message: 'done', id: req.params.id })
+					.status(200)
+					.send();
 			} else {
 				res.json({ message: 'not found' }).status(404).send();
 			}
