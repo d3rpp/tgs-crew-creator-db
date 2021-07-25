@@ -219,7 +219,7 @@ const innit = (): void => {
 		indicator = document.querySelector('span#indicator')!;
 
 		if (main == null || indicator == null) {
-			throw new Error('Good Job Retard');
+			throw new Error('Good Job');
 		}
 	} catch (error: any) {
 		// insult me, the only person using this code for being retarded and not setting up the DOM properly

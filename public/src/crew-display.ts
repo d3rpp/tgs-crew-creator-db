@@ -15,21 +15,17 @@ class CrewDisplay {
 			);
 		}
 
-		window.addEventListener('storage', () => {
-			this.loadCrews();
-			this.renderCrews();
-			console.log(
-				'updated',
-				JSON.parse(atob(window.localStorage.getItem('crews')))
-			);
-		});
+		// window.addEventListener('storage', () => {
+		// 	this.loadCrews();
+		// 	this.renderCrews();
+		// 	console.log('updated');
+		// });
 
 		this.loadCrews().then((val) => {
 			this.crews = val;
 			this.renderCrews();
+			console.info('Crew Display: Initialised Successfuly');
 		});
-
-		console.info('Crew Display: Initialised Successfuly');
 	}
 
 	private async loadCrews() {
