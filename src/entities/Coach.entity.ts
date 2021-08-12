@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import Crew from './Crew.entity';
 
 @Entity({ name: 'coaches' })
@@ -8,9 +8,8 @@ export default class Coach {
 	}
 
 	@PrimaryGeneratedColumn()
-	@OneToOne((_) => Crew, (c) => c.coach)
-	// @ts-ignore
-	id: number;
+	@OneToMany((_) => Crew, (c) => c.coach, { cascade: false })
+	id!: number;
 
 	@Column({ unique: true, length: 30 })
 	name: string;

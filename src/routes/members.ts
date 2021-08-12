@@ -7,6 +7,7 @@ interface CrewMemberInterface {
 	name: string;
 	ageGroup: AgeGroup;
 	gender: Gender;
+	novice: boolean;
 }
 
 export const router = Router();
@@ -18,7 +19,7 @@ export const router = Router();
  */
 router.post('/', async (req: Request, res: Response) => {
 	try {
-		// console.log(req.body);
+		console.log(req.body);
 
 		if (!req.body || req.body == {}) {
 			res.status(400).send();
@@ -28,20 +29,18 @@ router.post('/', async (req: Request, res: Response) => {
 		const repo = getRepository(CrewMember);
 
 		// get all members and map them to lower case
-		const members = await repo.find({
-			where: {
-				name: {
-					$like: `%${req.body.name.toLowerCase()}%`,
-				},
-			},
-		});
-
-		if (members) {
+		if (
+			(await repo.find())
+				.map((val) => {
+					return val.name.toLowerCase();
+				})
+				.includes(req.body.name.toLowerCase())
+		) {
 			res.status(409).send();
 			return;
 		}
 
-		let name: string, ageGroup: AgeGroup, gender: Gender;
+		let name: string, ageGroup: AgeGroup, gender: Gender, novice: boolean;
 
 		try {
 			let int = req.body as CrewMemberInterface;
@@ -49,12 +48,13 @@ router.post('/', async (req: Request, res: Response) => {
 			name = int.name ? int.name : 'unnamed';
 			ageGroup = int.ageGroup ? int.ageGroup : 'U18';
 			gender = int.gender ? int.gender : 'M';
+			novice = int.novice ? int.novice : false;
 		} catch (e) {
 			res.status(400).send();
 			return;
 		}
 
-		let toSave = new CrewMember(name!, ageGroup!, gender!);
+		let toSave = new CrewMember(name!, ageGroup!, gender!, novice!);
 
 		let { id } = await repo.save(toSave);
 
@@ -73,9 +73,21 @@ router.get('/', async (req: Request, res: Response) => {
 	try {
 		const repo = getRepository(CrewMember);
 
-		res.status(200).json(await repo.find());
+		let c = await repo.find({ order: { ageGroup: 'ASC', gender: 'DESC' } });
+
+		if (c.length < 1) {
+			res.status(404).send();
+			return;
+		}
+
+		res.status(200).json(c);
 	} catch (e) {
-		console.error(e);
+		const repo = getRepository(CrewMember);
+		if ((await repo.find()).length < 1) {
+			res.status(404).send();
+			return;
+		}
+		// console.error(e);
 	}
 });
 
@@ -96,6 +108,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 				name: b.name,
 				ageGroup: b.ageGroup,
 				gender: b.gender,
+				novice: b.novice,
 			})
 				.status(200)
 				.send();
@@ -177,4 +190,5 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
 router.use('/*', async (req: Request, res: Response) => {
 	res.json({ message: 'no endpoint' }).status(400);
+	return;
 });

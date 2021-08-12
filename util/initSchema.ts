@@ -14,6 +14,7 @@ try {
 		database: 'HUDSON_CURREN_TGS_CREW_CREATOR',
 		entities: ENTITIES,
 		// synchronize: true,
+		logging: true,
 	})
 		.then(async (c) => {
 			try {
@@ -28,6 +29,7 @@ try {
 		})
 		.catch((e) => {
 			console.error('a problem occured');
+			console.error(e);
 			process.exit(1);
 		});
 } catch (e) {

@@ -1,12 +1,19 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AgeGroup, Gender } from './common';
+import Seat from './Seat.entity';
 
 @Entity({ name: 'crew_members' })
 export default class CrewMember {
-	constructor(name: string, ageGroup: AgeGroup, gender: Gender) {
+	constructor(
+		name: string,
+		ageGroup: AgeGroup,
+		gender: Gender,
+		novice: boolean
+	) {
 		this.name = name;
 		this.ageGroup = ageGroup;
 		this.gender = gender;
+		this.novice = novice;
 	}
 
 	@PrimaryGeneratedColumn()
@@ -16,9 +23,12 @@ export default class CrewMember {
 	@Column({ length: 30 })
 	name: string;
 
-	@Column({ length: 3 })
+	@Column({ type: 'varchar', length: 3 })
 	ageGroup: AgeGroup;
 
-	@Column({ length: 1 })
+	@Column({ type: 'varchar', length: 1 })
 	gender: Gender;
+
+	@Column()
+	novice: boolean;
 }

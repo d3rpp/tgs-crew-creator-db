@@ -1,23 +1,20 @@
 import {
 	Column,
 	Entity,
-	getRepository,
 	JoinTable,
+	ManyToOne,
 	OneToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm';
-// import Crew from './Crew';
 import CrewMember from './CrewMember.entity';
-// import Crew from './Crew';
 
 @Entity({ name: 'seats' })
 export default class Seat {
-	constructor(pos: number, mem: CrewMember, crew: number) {
-		const memberRepo = getRepository(CrewMember);
-
+	constructor(pos: number, mem: number, crew: number) {
+		// const memberRepo = getRepository(CrewMember);
 		this.seat = pos;
-		this.crewId = crew;
 		this.crewMember = mem;
+		this.crewId = crew;
 	}
 
 	@PrimaryGeneratedColumn()
@@ -27,10 +24,8 @@ export default class Seat {
 	@Column()
 	crewId: number;
 
-	@OneToOne((_) => CrewMember, (c) => c.id)
-	@JoinTable()
-	// @ts-ignore
-	crewMember: CrewMember;
+	@Column()
+	crewMember: number;
 
 	@Column()
 	seat: number;

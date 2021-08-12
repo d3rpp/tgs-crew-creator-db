@@ -96,3 +96,7 @@ have fun fucking with it, feel free to clone it and make it your own instead
 idc...
 
 this is the first time i've ever actually made a full stack application
+
+this thing is worth 14 NCEA Credits for me
+
+hooray

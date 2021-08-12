@@ -29,10 +29,18 @@ class CrewDisplay {
 	}
 
 	private async loadCrews() {
-		let data = await fetch('/api/crews/all');
+		let data = await fetch('/api/crews/');
 
 		return data.json().then((val) => {
-			return val as CrewEditorSerialised[];
+			return val.map((v2) => {
+				return {
+					boatName: v2.boatName,
+					coachName: v2.coach.name,
+					crewType: v2.crewName,
+					oars: v2.oars,
+					seats: v2.seats,
+				} as CrewEditorSerialised;
+			});
 		});
 
 		// this.crews = JSON.parse(
@@ -52,6 +60,7 @@ class CrewDisplay {
 				this.items.push(new CrewDisplayItem(val));
 			});
 		} catch (e) {
+			console.warn(e);
 			return;
 		}
 

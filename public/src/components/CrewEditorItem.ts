@@ -1,4 +1,11 @@
-import { AgeGroup, BoatSize, CrewMember, Gender } from '../types';
+import { CrewMemberAPIInterface } from '../member-editor';
+import {
+	AgeGroup,
+	BoatSize,
+	CrewMember,
+	CrewMemberInterface,
+	Gender,
+} from '../types';
 
 /**
  * Config Interface
@@ -39,7 +46,7 @@ type currentWarningInEditor =
  *	 software to differentiate between sculling and sweeping
  */
 interface CrewEditorSerialised {
-	seats: CrewMember[];
+	seats: number[] | number;
 	boatName: string;
 	coachName: string;
 	oars: string;
@@ -50,7 +57,9 @@ class CrewEditorItem {
 	/**
 	 * A Reference to this Item
 	 */
-	masterElement: HTMLElement;
+	public masterElement: HTMLElement;
+
+	id: number = -1;
 
 	/**
 	 * A Reference to the editor element, given by the parent class (Crew Editor)
@@ -108,6 +117,20 @@ class CrewEditorItem {
 		} else {
 			console.error('Unable to Construct Crew Member Editor');
 		}
+
+		let xhr = new XMLHttpRequest();
+
+		xhr.onreadystatechange = (ev: Event) => {
+			if (xhr.readyState == 4 && xhr.status > 199 && xhr.status < 299) {
+				this.id = xhr.response.json.id;
+			} else {
+				alert(
+					`UNABLE TO CREATE CREW\n\n:${JSON.stringify(
+						xhr.response.json
+					)}`
+				);
+			}
+		};
 	}
 
 	/**
@@ -115,7 +138,18 @@ class CrewEditorItem {
 	 * this happens a lot as this is saved in real time
 	 */
 	private save() {
-		this.parentElement.dispatchEvent(new Event('save'));
+		// this.parentElement.dispatchEvent(new Event('save'));
+
+		let xhr = new XMLHttpRequest();
+
+		xhr.onreadystatechange = (ev: Event) => {
+			if (xhr.readyState == 4 && xhr.status > 199 && xhr.status < 299) {
+				console.log('saved id of ', this.id, 'successfully');
+			}
+		};
+
+		xhr.open('PUT', `/api/crews/${this.id}`);
+		xhr.send(JSON.stringify(this.serialise()));
 	}
 
 	/**
@@ -147,11 +181,19 @@ class CrewEditorItem {
 	 *
 	 * @param serialisedForm the Simplified form of this thing, used for more efficient storage
 	 */
-	private deserialise(serialisedForm: CrewEditorSerialised): void {
+	private async deserialise(
+		serialisedForm: CrewEditorSerialised
+	): Promise<void> {
 		this.masterElement = document.createElement('div');
 
+		console.info({ serialisedForm });
+
+		if (typeof serialisedForm.seats == 'number') {
+			serialisedForm.seats = [serialisedForm.seats];
+		}
+
 		// We are inferring the seat count and cox from the length of the serialised form;
-		switch (serialisedForm.seats.length) {
+		switch ((serialisedForm.seats as number[]).length) {
 			case 1:
 				this.seatCount = 1;
 				this.coxed = false;
@@ -174,7 +216,25 @@ class CrewEditorItem {
 				break;
 		}
 
-		this.seats = serialisedForm.seats;
+		this.seats = await Promise.all(
+			(serialisedForm.seats as number[]).map(async (val) => {
+				return new CrewMember(
+					await (await fetch('/api/members/' + val))
+						.json()
+						.then((val: CrewMemberAPIInterface) => {
+							console.info({ val });
+
+							return {
+								id: val.id || '',
+								ageGroup: val.ageGroup || '',
+								gender: val.gender || '',
+								name: val.name || '',
+								novice: val.novice || false,
+							} as CrewMemberInterface;
+						})
+				);
+			})
+		);
 
 		this.boatName = serialisedForm.boatName;
 		// this._boatNameInput.value = serialisedForm.boatName;
@@ -198,7 +258,7 @@ class CrewEditorItem {
 		// if (!this.validate()) return;
 
 		let tmp: CrewEditorSerialised = {
-			seats: this.seats ? this.seats : [],
+			seats: this.seats ? this.seats.map((v) => v.id) : [],
 			coachName: this.coachName ? this.coachName : '',
 			boatName: this.boatName ? this.boatName : '',
 			crewType: this.crewName ? this.crewName : '',

@@ -1,17 +1,46 @@
-import { BoatSize } from '../types';
+import { BoatSize, CrewMember, CrewMemberAPIInterface } from '../types';
 import { CrewEditorSerialised } from './CrewEditorItem';
 
 export class CrewDisplayItem {
 	mainElement: HTMLElement;
-	crew: CrewEditorSerialised;
+	crew: {
+		seats: CrewMember[];
+		boatName: string;
+		coachName: string;
+		oars: string;
+		crewType: string;
+	};
 	sizeString: string;
 	size: BoatSize;
 	coxed: boolean;
 
 	constructor(crew: CrewEditorSerialised) {
 		this.mainElement = document.createElement('div');
-		this.crew = crew;
-		this.sizeString = this.calculateBoatSizeStringForRenderer();
+
+		this.crew.boatName = crew.boatName || '';
+		this.crew.coachName = crew.coachName || '';
+		this.crew.crewType = crew.crewType || '';
+		this.crew.oars = crew.oars || '';
+
+		if (typeof crew.seats == 'number') {
+			crew.seats = [crew.seats];
+		}
+
+		async () => {
+			this.crew.seats = await Promise.all(
+				(crew.seats as number[]).map(async (val) => {
+					return new CrewMember(
+						(await (
+							await fetch('/api/members/' + val)
+						).json()) as CrewMemberAPIInterface
+					);
+				})
+			);
+
+			this.sizeString = this.calculateBoatSizeStringForRenderer();
+
+			this.render();
+		};
 	}
 
 	calculateBoatSizeStringForRenderer(): string {
@@ -69,7 +98,7 @@ export class CrewDisplayItem {
 			</div>
 			<div class="right ${this.sizeString}">
 
-			<!-- Every Boat has a Stroke Seat, even  singles -->
+			<!-- Every Boat has a Stroke Seat, even singles -->
 
 				<div 
 					${

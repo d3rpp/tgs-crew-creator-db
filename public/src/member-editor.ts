@@ -2,6 +2,14 @@ import { AgeGroup, CrewMember, CrewMemberInterface, Gender } from './types';
 
 type Validation = 'name' | 'gender' | 'ageGroup' | undefined;
 
+export interface CrewMemberAPIInterface {
+	id: number;
+	name: string;
+	ageGroup: AgeGroup;
+	gender: Gender;
+	novice: boolean;
+}
+
 class MemberEditor {
 	mainPoint: HTMLElement;
 
@@ -126,16 +134,23 @@ class MemberEditor {
 		}
 
 		try {
-			this.load().then((val) => {
-				this.data = val;
+			fetch('/api/members').then((val) => {
+				val.json()
+					.then((v2) => {
+						this.data = v2;
 
-				this.sort(this.data);
+						this.sort(this.data);
 
-				this.insertDataIntoTable();
+						this.insertDataIntoTable();
 
-				this.updateViewer();
+						this.updateViewer();
 
-				console.info('Member Editor: Initialised Successfully');
+						console.info('Member Editor: Initialised Successfully');
+					})
+					.catch((_) => {
+						this.data = [];
+						console.info('Member Editor: Initialised Successfully');
+					});
 			});
 		} catch (error) {
 			console.error(error);
@@ -206,19 +221,27 @@ class MemberEditor {
 							let tmp: CrewMember =
 								this.data[+button.getAttribute('data-index')!];
 
+							console.log('DELETE: ', tmp);
+
 							if (
 								confirm(
 									"are you sure you'd like to delete " +
 										tmp.name
 								)
 							) {
-								this.data.splice(
-									+button.getAttribute('data-index')!,
-									1
-								);
+								let xhr = new XMLHttpRequest();
 
-								this.save();
-								this.insertDataIntoTable();
+								xhr.onreadystatechange = () => {
+									if (
+										xhr.readyState == 4 &&
+										xhr.status == 200
+									) {
+										this.load();
+									}
+								};
+
+								xhr.open('DELETE', `/api/members/${tmp.id}`);
+								xhr.send();
 							}
 						});
 					}
@@ -337,7 +360,6 @@ class MemberEditor {
 					Math.floor(Math.random() * 4)
 				] as AgeGroup,
 				novice: !!Math.round(Math.random()),
-				id: this.createUID(),
 			});
 		}
 
@@ -374,23 +396,23 @@ class MemberEditor {
 		return i;
 	}
 
-	createUID(): number {
-		let ids: number[] = [];
-		let valid: boolean = false;
-		let i = 0;
+	// createUID(): number {
+	// 	let ids: number[] = [];
+	// 	let valid: boolean = false;
+	// 	let i = 0;
 
-		this.data.forEach((val: CrewMember) => {
-			ids.push(val.id);
-		});
+	// 	this.data.forEach((val: CrewMember) => {
+	// 		ids.push(val.id);
+	// 	});
 
-		while (!valid) {
-			i++;
+	// 	while (!valid) {
+	// 		i++;
 
-			if (!ids.includes(i)) valid = true;
-		}
+	// 		if (!ids.includes(i)) valid = true;
+	// 	}
 
-		return i;
-	}
+	// 	return i;
+	// }
 
 	/**
 	 * Validates the data in the buffer and adds it to the data array, immediately saving the data array to window.localStorage
@@ -416,14 +438,14 @@ class MemberEditor {
 			)
 				return false;
 
-			this.buffer.id = this.createUID();
+			// this.buffer.id = this.createUID();
 
-			this.buffer.novice = this.buffer.novice ? true : false;
+			this.buffer.novice = this.noviceSwitch.checked;
 
 			// this.buffer.id = -1;
 			this.addCrewMember(this.buffer);
 
-			this.save();
+			// let xhr = new XMLHttpRequest()
 		} else {
 			if (
 				!confirm(
@@ -433,14 +455,11 @@ class MemberEditor {
 						this.buffer.novice ? ' Novice' : ''
 					} named ${this.buffer.name}`
 				)
-			)
+			) {
 				return false;
-
-			let index = this.getIndexOfID(this.buffer.id!);
-
-			this.data[index!] = new CrewMember(this.buffer);
-
-			this.save();
+			} else {
+				this.updateCrewMember(this.buffer);
+			}
 		}
 
 		this.submitButton.innerHTML = `Save`;
@@ -456,13 +475,50 @@ class MemberEditor {
 	 * @param member the member to be added
 	 */
 	private addCrewMember(member: CrewMemberInterface) {
-		if (this.idIsUsedforCrewMember(member.id!)) {
-			this.data[this.getIndexOfID(member.id!)!] = new CrewMember(member);
-		} else {
-			this.data.push(new CrewMember(member));
-		}
+		let xhr = new XMLHttpRequest();
 
-		this.save();
+		xhr.onreadystatechange = (ev: Event) => {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				console.log('SAVED CREW MEMBER');
+				this.load();
+			}
+		};
+
+		xhr.open('POST', '/api/members');
+
+		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+		xhr.send(
+			JSON.stringify({
+				ageGroup: member.ageGroup!,
+				gender: member.gender!,
+				name: member.name!,
+				novice: member.novice!,
+			} as CrewMemberAPIInterface)
+		);
+
+		// this.save();
+	}
+
+	private updateCrewMember(member: CrewMemberInterface) {
+		let xhr = new XMLHttpRequest();
+
+		xhr.onreadystatechange = (ev: Event) => {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				console.log('SAVED CREW MEMBER');
+				this.load();
+			}
+		};
+
+		xhr.open('PUT', `/api/members/${member.id!}`);
+		xhr.send(
+			JSON.stringify({
+				ageGroup: member.ageGroup!,
+				gender: member.gender!,
+				name: member.name!,
+				novice: member.novice!,
+			} as CrewMemberAPIInterface)
+		);
 	}
 
 	private sort(list: CrewMember[]) {
@@ -493,39 +549,20 @@ class MemberEditor {
 	}
 
 	/**
-	 * Saves the data object array to window.localStorage by base64 encoding it after it has been srtringified
-	 *
-	 * allows for persistent data usage
-	 */
-	save() {
-		this.sort(this.data);
-
-		localStorage.setItem('crewMembers', btoa(JSON.stringify(this.data)));
-
-		window.dispatchEvent(new Event('crewMembersEdited'));
-	}
-
-	/**
 	 * Loads the data from window.localStorage into the data array
 	 *
 	 * if there is no data to load, it initialises the data array to an empty array
+	 * also inserts data into table
 	 */
 	load() {
-		// if (localStorage.getItem('crewMembers') != null) {
-		// 	this.data = JSON.parse(atob(localStorage.getItem('crewMembers')!));
-		// } else {
-		// 	this.data = [];
-		// }
-
-		// // console.log(this.data);
-
-		// this.save();
-
-		return fetch('/api/members/get.php').then((val) => {
-			return val.json().then((val2) => {
-				return val2;
+		return async function () {
+			return fetch('/api/members/').then(async (val) => {
+				const val2 = await val.json();
+				// return val2;
+				this.data = val2;
+				this.insertDataIntoTable();
 			});
-		});
+		};
 	}
 
 	/**

@@ -37,6 +37,7 @@ const printSuccessMessage = () => {
 
 console.log(c.bold.yellow('Creating Application'));
 const app = express();
+app.use(express.json());
 let server: Server | null | undefined = null;
 let connection: Connection | null | undefined = null;
 
@@ -51,9 +52,20 @@ const main = () => {
 		password: '',
 		database: 'HUDSON_CURREN_TGS_CREW_CREATOR',
 		entities: ENTITIES,
+		logging: true,
 	})
 		.then(async (conn) => {
 			connection = conn;
+
+			app.use('/', (req, res, next) => {
+				console.log(
+					`${c.bold.magentaBright('REQUEST')} RECEIVED ${
+						req.method
+					} REQUEST TO ${req.url}`
+				);
+				// req.next
+				next();
+			});
 
 			console.log(c.bold.yellow('Adding JSON Module'));
 			app.use(express.json());
