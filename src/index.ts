@@ -37,7 +37,6 @@ const printSuccessMessage = () => {
 
 console.log(c.bold.yellow('Creating Application'));
 const app = express();
-app.use(express.json());
 let server: Server | null | undefined = null;
 let connection: Connection | null | undefined = null;
 
@@ -74,7 +73,7 @@ const main = () => {
 			app.use('/api', apiRouter);
 
 			console.log(c.bold.yellow('Initialising STATIC Router'));
-			app.use('/', express.static(process.cwd() + '/public/dist/'));
+			app.use('/', express.static(process.cwd() + '/public/public/'));
 
 			console.log(c.bold.yellow('Starting App Listening Cycle'));
 			server = app.listen(3000);
@@ -89,6 +88,8 @@ const main = () => {
 };
 
 const shutDown = () => {
+	console.clear();
+
 	if (connection != null && connection != undefined) {
 		console.log('closing connection to database');
 		connection.close();
@@ -103,8 +104,8 @@ const shutDown = () => {
 	process.exit(0);
 };
 
-process.on('exit', shutDown);
-// process.on('SIGINT', shutDown);
-// process.on('SIGTERM', shutDown);
+// process.on('exit', shutDown);
+process.on('SIGINT', shutDown);
+process.on('SIGTERM', shutDown);
 
 main();

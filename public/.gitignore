@@ -1,5 +1,4 @@
-.cache/
-node_modules
+/node_modules/
+/public/build/
+
 .DS_Store
-dist
-.parcel-cache

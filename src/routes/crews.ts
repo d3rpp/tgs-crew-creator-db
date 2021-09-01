@@ -158,44 +158,31 @@ router.post('/', async (req: Request, res: Response) => {
  * READ
  *
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/count', async (req: Request, res: Response) => {
 	try {
 		const repo = getRepository(Crew);
-		const seatsRepo = getRepository(Seat);
 
-		if ((await repo.find()).length < 1) {
-			res.status(404).send();
-			return;
-		}
-
-		let crews = await repo.find({
-			relations: ['coach'],
-		});
-
-		crews.forEach(async (val) => {
-			let int: CrewInterface = {
-				boatName: val!.boatName,
-				coach: val!.coach.name,
-				crewName: val!.crewName,
-				oars: val!.oars,
-				size: val!.boatSize,
-				seats: (
-					await seatsRepo.find({
-						where: { crewId: val!.seats },
-						order: { seat: 'ASC' },
-					})
-				).map((s) => {
-					return s.crewMember;
-				}),
-			};
-
-			return int;
-		});
-
-		res.json(crews).status(200).send();
+		res.json({ message: 'success', count: await repo.count() })
+			.status(200)
+			.send();
 		return;
 	} catch (e) {
-		res.json({ message: 'an error has occured', error: e });
+		res.json({ message: 'an error has occured', error: e })
+			.status(500)
+			.send();
+	}
+});
+
+router.get('/ids', async (req: Request, res: Response) => {
+	try {
+		const repo = getRepository(Crew);
+
+		let cs = await repo.createQueryBuilder('c').select('c.id').getMany();
+
+		res.json(cs.map((c) => c.id));
+		res.status(200).send();
+	} catch (e) {
+		console.error(e);
 	}
 });
 

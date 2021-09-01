@@ -91,6 +91,19 @@ router.get('/', async (req: Request, res: Response) => {
 	}
 });
 
+router.get('/ids', async (req: Request, res: Response) => {
+	try {
+		const repo = getRepository(CrewMember);
+
+		let cms = await repo.createQueryBuilder('cm').select('cm.id').getMany();
+
+		res.json(cms.map((cm) => cm.id));
+		res.status(200).send();
+	} catch (e) {
+		console.error(e);
+	}
+});
+
 router.get('/:id', async (req: Request, res: Response) => {
 	try {
 		const repo = getRepository(CrewMember);
@@ -140,11 +153,12 @@ router.put('/:id', async (req: Request, res: Response) => {
 		} else {
 			let int = req.body as CrewMemberInterface;
 
-			found.ageGroup = int.ageGroup;
-			found.gender = int.gender;
-			found.name = int.name;
-
-			repo.save(found);
+			await repo.update(found, {
+				name: int.name,
+				ageGroup: int.ageGroup,
+				gender: int.gender,
+				novice: int.novice,
+			});
 
 			res.status(200).json({ message: 'done', id: found.id });
 		}
