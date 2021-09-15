@@ -7,7 +7,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import { expoOut } from 'svelte/easing';
 
-	import ChangeOnAnimate from './animateOnChangeTD.svelte';
+	import ChangeOnAnimate from '../global/animateOnChangeTD.svelte';
 
 	import SvelteTooltip from 'svelte-tooltip';
 

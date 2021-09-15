@@ -4,7 +4,7 @@
 	import type { Writable } from 'svelte/store';
 	import { CrewMember } from '../../types';
 	import type { CrewMemberInterface } from '../../types';
-	import AnimateOnChangeSpan from '../animateOnChangeSPAN.svelte';
+	import AnimateOnChangeSpan from '../global/animateOnChangeSPAN.svelte';
 	import members from '../../stores/members';
 
 	import TextField from '../global/TextField.svelte';
@@ -21,13 +21,18 @@
 
 	let unsubscribe: { (): void };
 
-	let currentErrorState: '' | 'Name is Too Long (Max 30 Characters)' = '';
+	let currentErrorState:
+		| ''
+		| 'Name is Too Long (Max 30 Characters)'
+		| 'No Name is inputted' = '';
 
 	const MAX_NAME_LENGTH = 30;
 
 	$: {
 		if (currentValue.name.length > MAX_NAME_LENGTH) {
 			currentErrorState = 'Name is Too Long (Max 30 Characters)';
+		} else if (currentValue.name.trim().length == 0) {
+			currentErrorState = 'No Name is inputted';
 		} else {
 			currentErrorState = '';
 		}
@@ -135,7 +140,7 @@
 			</Button>
 			<span style="width:16px;" />
 			<Button onClick={resetBuffer} type="reset" style="hollow">
-				Cancel
+				Clear
 			</Button>
 		</div>
 		<div class="spacer" />

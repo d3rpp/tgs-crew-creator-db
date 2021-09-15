@@ -13,3 +13,5 @@ export const memberEditorBuffer = writable<Writable<CrewMember>>(
 		} as CrewMemberInterface)
 	)
 );
+
+export const somethingIsLoading = writable<boolean>(false);

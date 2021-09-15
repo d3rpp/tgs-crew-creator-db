@@ -4,6 +4,7 @@
 	import type { CrewMember } from '../../types';
 
 	import CrewMemberListItem from './CrewMemberListItem.svelte';
+	import { somethingIsLoading } from '../../stores/buffers';
 
 	export let members: Writable<Writable<CrewMember>[]>;
 	export let pushToBuffer: { (mem: Writable<CrewMember>): void };
@@ -30,13 +31,17 @@
 		<th>Actions</th>
 	</tr>
 
-	{#each $members as member (get(member).id)}
-		<CrewMemberListItem
-			{member}
-			{pushToBuffer}
-			deleteFunction={deleteMember}
-		/>
-	{/each}
+	{#if $somethingIsLoading}
+		<span>Loading...</span>
+	{:else}
+		{#each $members as member (get(member).id)}
+			<CrewMemberListItem
+				{member}
+				{pushToBuffer}
+				deleteFunction={deleteMember}
+			/>
+		{/each}
+	{/if}
 </table>
 
 <style scoped>

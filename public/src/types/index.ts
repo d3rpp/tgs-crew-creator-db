@@ -89,6 +89,7 @@ export class CrewMember {
 					);
 
 					this.is_loading = false;
+
 					resolve();
 				} else if (['4', '5'].includes(xhr.status.toString()[0])) {
 					reject();
@@ -120,6 +121,7 @@ export class CrewMember {
 						`Successfully updated ${this.name} with ID of ${this.id}`
 					);
 					this.is_loading = false;
+
 					resolve();
 				} else if (['4', '5'].includes(xhr.status.toString()[0])) {
 					reject();
