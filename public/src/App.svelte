@@ -11,59 +11,65 @@
 	import RedirToLast from './utils/RedirToLast.svelte';
 
 	// Stores
-	import tr from './stores/transition';
 	import members from './stores/members';
 
 	// LIB IMPORT
-	import { dive, StackRouter } from 'svelte-stack-router';
-	import { onDestroy, onMount } from 'svelte';
+	import Router from 'svelte-spa-router';
+	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { CrewMember } from './types';
+	import { CrewMember, Crew } from './types';
 	import type { CrewMemberAPIInterface } from './types';
 	import { somethingIsLoading } from './stores/buffers';
+	import crews from './stores/crews';
 
 	const routes = {
 		'/': RedirToEditor,
 		'/member-editor': MemberEditor,
 		'/crew-editor': CrewEditor,
 		'/crew-display': CrewDisplay,
-		'*': RedirToLast, 
+		'*': RedirToLast,
 	};
-
-	let transition: any = dive(300);
-
-	const unsubscribe = tr.subscribe((anim) => {
-		transition = anim;
-	});
 
 	onMount(() => {
 		somethingIsLoading.set(true);
+
+		fetch_members();
+	});
+
+	const fetch_members = () => {
 		fetch('/api/members/ids').then((val) => {
 			val.json().then((list: number[]) => {
 				list.forEach((num) => {
 					fetch(`/api/members/${num}`).then((val) => {
 						val.json().then((member: CrewMemberAPIInterface) => {
-							console.log({ member });
-
 							members.update((current) => {
 								return [
 									...current,
 									writable(new CrewMember(member)),
 								];
 							});
-
-							somethingIsLoading.set(false);
 						});
 					});
 				});
+				somethingIsLoading.set(false);
+				fetch_crews();
 			});
 		});
-	});
+	};
 
-	onDestroy(() => {
-		unsubscribe();
-	});
+	const fetch_crews = () => {
+		fetch('/api/crews/ids').then((val) => {
+			val.json().then((list: number[]) => {
+				list.forEach((num) => {
+					crews.update((current) => {
+						return [...current, writable(new Crew({ id: num }))];
+					});
+				});
+				somethingIsLoading.set(false);
+			});
+		});
+	};
 </script>
 
 <Header />
-<StackRouter {routes} transitionFn={transition} on:error={console.error} />
+<Router {routes} />

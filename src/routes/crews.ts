@@ -11,7 +11,7 @@ interface CrewInterface {
 	boatName: string;
 	oars: string;
 	coach: string;
-	seats: number[];
+	seats: (number | null)[];
 	size: BoatSize;
 }
 
@@ -79,23 +79,25 @@ router.post('/', async (req: Request, res: Response) => {
 
 			await Promise.all(
 				seats.map((val, index) => {
-					return new Promise(async (resolve, reject) => {
-						let cm = await crewMemberRepo.findOne({ id: val });
+					if (val != null) {
+						return new Promise(async (resolve, reject) => {
+							let cm = await crewMemberRepo.findOne({ id: val });
 
-						if (!cm) {
-							res.status(400)
-								.json({ message: 'CREW MEMBER NON EXISTENT' })
-								.send();
-							reject({});
-							return;
-						} else {
-							let s = new Seat(index + 1, cm!.id, cr.seats!);
+							if (!cm) {
+								res.status(400).json({
+									message: 'CREW MEMBER NON EXISTENT',
+								});
 
-							seatsRepo.save(s);
+								reject({});
+							} else {
+								let s = new Seat(index + 1, cm!.id, cr.seats!);
 
-							resolve({});
-						}
-					});
+								seatsRepo.save(s);
+
+								resolve({});
+							}
+						});
+					}
 				})
 			).catch(() => {
 				success = false;
@@ -106,51 +108,18 @@ router.post('/', async (req: Request, res: Response) => {
 			}
 			// THIS MAY OR MAY NOT BREAK
 			// I AM VERY SCARED THAT THIS WON'T WORK
-			res.json(
-				await crewRepo
-					.findOne({
-						where: { id: cr.id },
-						relations: ['coach'],
-					})
-					.then(async (val) => {
-						let int: CrewInterface = {
-							boatName: val!.boatName,
-							coach: val!.coach.name,
-							crewName: val!.crewName,
-							oars: val!.oars,
-							size: val!.boatSize,
-							seats: (
-								await seatsRepo.find({
-									where: { crewId: val!.seats },
-									order: { seat: 'ASC' },
-								})
-							).map((s) => {
-								return s.crewMember;
-							}),
-						};
-
-						return int;
-					})
-			)
-				.status(200)
-				.send();
+			res.json({ id: cr.id }).status(200).send();
 		} catch (e) {
 			res.json({
 				message: 'an error has occured',
 				error: e,
-			})
-				.status(500)
-				.send();
-
-			return;
+			}).status(500);
 		}
 	} catch (e) {
-		res.json({ message: 'missing body parts', error: e })
-			.status(400)
-			.send();
-
-		return;
+		res.json({ message: 'missing body parts', error: e }).status(400);
 	}
+
+	res.send();
 });
 
 /**
@@ -192,7 +161,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 		const seatsRepo = getRepository(Seat);
 
 		if (!(await repo.findOne({ id: req.params.id as unknown as number }))) {
-			res.status(404).send();
+			res.status(404);
 			return;
 		}
 
@@ -215,17 +184,18 @@ router.get('/:id', async (req: Request, res: Response) => {
 					order: { seat: 'ASC' },
 				})
 			).map((s) => {
+				if (s.crewMember == -1) return null;
 				return s.crewMember;
 			}),
 		};
 
-		res.json(int).status(200).send();
+		res.json(int).status(200);
 		return;
-
-		// 	return tmp;
 	} catch (e) {
 		res.json({ message: 'an error has occured', error: e });
 	}
+
+	res.send();
 });
 
 /**
@@ -243,9 +213,9 @@ router.put('/:id', async (req: Request, res: Response) => {
 		!req.body.boatName ||
 		!req.body.coach ||
 		!req.body.crewName ||
-		!req.body.oars ||
-		!req.body.seats
+		!req.body.oars
 	) {
+		console.log('MISSING PART OF BODY', req.body);
 		res.json({ message: 'missing part of body' }).status(400).send();
 		return;
 	}
@@ -292,22 +262,17 @@ router.put('/:id', async (req: Request, res: Response) => {
 			(req.body.seats as number[]).map((val: number, index: number) => {
 				return new Promise(async (resolve, reject) => {
 					let cm = await crewMemberRepo.findOne({ id: val });
-
-					if (!cm) {
-						res.status(400)
-							.json({
-								message: 'CREW MEMBER NON EXISTENT',
-							})
-							.send();
-						reject({});
-						return;
-					} else {
-						let s = new Seat(index + 1, cm!.id, crew!.seats!);
-
-						seatsRepo.save(s);
-
-						resolve({});
+					let s: Seat;
+					if (cm) {
+						s = new Seat(index + 1, cm!.id, crew!.seats!);
+						await seatsRepo.save(s);
 					}
+					if (!cm) {
+						s = new Seat(index + 1, -1, crew!.seats!);
+						await seatsRepo.save(s);
+					}
+
+					resolve({});
 				});
 			})
 		);

@@ -1,7 +1,7 @@
 import { writable, Writable } from 'svelte/store';
-import type { CrewInterface } from '../types';
+import type { Crew } from '../types';
 
-export default writable<Writable<CrewInterface>[]>([], () => {
+export default writable<Writable<Crew>[]>([], () => {
 	console.log('Subscriber Detected ON CREWS');
 
 	return () => console.log('No More Subscribers ON CREWS');

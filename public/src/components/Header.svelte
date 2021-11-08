@@ -1,46 +1,14 @@
 <script lang="ts">
-	import { dive, push } from 'svelte-stack-router';
 	import tr from '../stores/transition';
 
-	import { location } from 'svelte-stack-router';
+	import { location, link } from 'svelte-spa-router';
 	import { onDestroy } from 'svelte';
-	import { leftSlide, rightSlide } from '../utils/custom-slide';
 
 	let pageIndicatorBarClasslist = 'nav-show';
 
-	let currentPage;
 	let unsubscribeFromLocation = location.subscribe((val) => {
-		currentPage = val;
 		pageIndicatorBarClasslist = `nav-show ${val.substring(1, val.length)}`;
 	});
-
-	function calcAnim(ev: MouseEvent) {
-		console.log(ev);
-
-		// This does exist
-		// @ts-ignore
-		let path_to = `/${ev.target.getAttribute('data-page')}`;
-
-		tr.set(dive(300));
-
-		if (currentPage == '/member-editor') {
-			tr.set(leftSlide(300));
-		} else if (currentPage == '/crew-editor') {
-			if (path_to == '/member-editor') {
-				tr.set(rightSlide(300));
-			} else {
-				tr.set(leftSlide(300));
-			}
-		} else if (currentPage == '/crew-display') {
-			tr.set(rightSlide(300));
-		}
-
-		console.log({ path_to });
-
-		setTimeout(() => {
-			push(path_to);
-		}, 10);
-	}
 
 	onDestroy(() => {
 		unsubscribeFromLocation();
@@ -53,15 +21,9 @@
 		TGSRC Crew Creator
 	</h1>
 	<nav>
-		<span class="nav-link" data-page="member-editor" on:click={calcAnim}>
-			Member Editor
-		</span>
-		<span class="nav-link" data-page="crew-editor" on:click={calcAnim}>
-			Crew Editor
-		</span>
-		<span class="nav-link" data-page="crew-display" on:click={calcAnim}>
-			Crew Display
-		</span>
+		<a class="nav-link" use:link href="/member-editor"> Member Editor </a>
+		<a class="nav-link" use:link href="/crew-editor"> Crew Editor </a>
+		<a class="nav-link" use:link href="/crew-display"> Crew Display </a>
 	</nav>
 	<div class={pageIndicatorBarClasslist} />
 </header>
@@ -123,6 +85,9 @@
 
 		cursor: pointer;
 
+		color: white;
+		text-decoration: none;
+
 		background-color: #002a37;
 		box-shadow: 0px 1px 3px #002a37 inset;
 
@@ -130,6 +95,7 @@
 	}
 
 	.nav-link:hover {
+		color: white;
 		background-color: #002530;
 		box-shadow: 0px 3px 5px #00253088, 0px 1px 3px #002a37 inset;
 	}

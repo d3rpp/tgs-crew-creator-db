@@ -1,7 +1,4 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
-
-	import { get } from 'svelte/store';
 	import type { Writable } from 'svelte/store';
 
 	import { memberEditorBuffer } from '../stores/buffers';
@@ -11,28 +8,19 @@
 
 	import CrewMemberBufferEditor from '../components/member-editor/crewMemberBufferEditor.svelte';
 	import CrewMemberList from '../components/member-editor/CrewMemberList.svelte';
-
-	let internalMemberBuffer = get(memberEditorBuffer);
-	let unsubscribeFromBuffer;
+	import { fly } from 'svelte/transition';
 
 	const pushMemberToEditBuffer = (mem: Writable<CrewMember>) => {
 		memberEditorBuffer.set(mem);
 	};
-
-	onMount(() => {
-		unsubscribeFromBuffer = memberEditorBuffer.subscribe(
-			(updatedBuffer) => {
-				internalMemberBuffer = updatedBuffer;
-			}
-		);
-	});
-
-	onDestroy(() => {
-		unsubscribeFromBuffer();
-	});
 </script>
 
-<main id="member-editor" class="page">
+<main
+	id="member-editor"
+	class="page"
+	in:fly={{ duration: 200, delay: 200, y: 10 }}
+	out:fly={{ duration: 200, y: 10 }}
+>
 	<div class="title">
 		<h1>Member Editor</h1>
 	</div>
