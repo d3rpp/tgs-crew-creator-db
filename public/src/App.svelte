@@ -17,8 +17,9 @@
 	import Router from 'svelte-spa-router';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
-	import { CrewMember, Crew } from './types';
-	import type { CrewMemberAPIInterface } from './types';
+	import { CrewMember, Crew } from './types/index';
+
+	import type { CrewMemberAPIInterface } from './types/index';
 	import { somethingIsLoading } from './stores/buffers';
 	import crews from './stores/crews';
 
@@ -51,7 +52,6 @@
 						});
 					});
 				});
-				somethingIsLoading.set(false);
 				fetch_crews();
 			});
 		});

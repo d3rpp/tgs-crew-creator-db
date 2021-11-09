@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
 	import type { Writable } from 'svelte/store';
-	import type { CrewMember } from '../../types';
+	import type { CrewMember } from '../../types/index';
 
 	import CrewMemberListItem from './CrewMemberListItem.svelte';
-	import { somethingIsLoading } from '../../stores/buffers';
+	import {
+		resetEditorBuffer,
+		somethingIsLoading,
+	} from '../../stores/buffers';
 
 	export let members: Writable<Writable<CrewMember>[]>;
 	export let pushToBuffer: { (mem: Writable<CrewMember>): void };
@@ -16,6 +19,7 @@
 			return;
 
 		member.delete().then(() => {
+			resetEditorBuffer();
 			members.update((currentList) =>
 				currentList.filter((val) => val != mem)
 			);

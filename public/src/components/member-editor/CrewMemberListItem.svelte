@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
 	import type { Writable } from 'svelte/store';
-	import type { CrewMember } from '../../types';
+	import type { CrewMember } from '../../types/index';
 	import { onDestroy, onMount } from 'svelte';
 
 	import { fade, slide } from 'svelte/transition';

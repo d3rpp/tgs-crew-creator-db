@@ -36,11 +36,9 @@ router.post('/', async (req: Request, res: Response) => {
 
 		repo.save(c);
 
-		res.json({ message: 'done', ...(await repo.save(c)) })
-			.status(200)
-			.send();
+		res.status(200).json({ message: 'done', ...(await repo.save(c)) });
 	} else {
-		res.json({ message: 'missing name' }).status(400).send();
+		res.status(400).json({ message: 'missing name' });
 	}
 });
 
@@ -52,9 +50,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
 	const repo = getRepository(Coach);
 
-	res.json(await repo.find())
-		.status(200)
-		.send();
+	res.status(200).json(await repo.find());
 });
 router.get('/:id', async (req: Request, res: Response) => {
 	const repo = getRepository(Coach);
@@ -62,9 +58,9 @@ router.get('/:id', async (req: Request, res: Response) => {
 	let found = await repo.findOne({ id: +req.params.id });
 
 	if (found) {
-		res.json(found).status(200).send();
+		res.status(200).json(found);
 	} else {
-		res.json({ message: 'not found' }).status(404).send();
+		res.status(404).json({ message: 'not found' });
 	}
 });
 
@@ -80,7 +76,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 		let f = await repo.findOne({ id: +req.params.id });
 
 		if (!f) {
-			res.json({ message: 'not found' }).status(404).send();
+			res.status(404).json({ message: 'not found' });
 			return;
 		}
 
@@ -88,9 +84,9 @@ router.put('/:id', async (req: Request, res: Response) => {
 
 		repo.save(f);
 
-		res.json({ message: 'success', id: f.id }).status(200).send();
+		res.status(200).json({ message: 'success', id: f.id });
 	} else {
-		res.json({ message: 'missing ID to NAME' }).status(400).send();
+		res.status(400).json({ message: 'missing ID to NAME' });
 	}
 });
 
@@ -105,9 +101,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
 	if (await repo.findOne({ id: +req.params.id })) {
 		await repo.delete({ id: +req.params.id });
 
-		res.json({ message: 'done' }).status(200).send();
+		res.status(200).json({ message: 'done' });
 	} else {
-		res.json({ message: 'not found' }).status(404).send();
+		res.status(404).json({ message: 'not found' });
 	}
 });
 

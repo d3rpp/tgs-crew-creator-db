@@ -1,19 +1,25 @@
 <script lang="ts">
-	import type { CrewMember } from '../../types';
+	import type { Writable } from 'svelte/store';
 
-	export let member: CrewMember;
+	import type { CrewMember } from '../../types/index';
+
+	export let member: Writable<CrewMember> | Writable<null>;
+	let id = $member == null ? -1 : $member.id;
 </script>
 
-<div class="item" data-id={member.id}>
-	{JSON.stringify(member, null, 4)}
-</div>
+{#if $member != null}
+	<div class="item" data-id={id}>
+		<span>{$member.name}</span>
+		<span>{$member.ageGroup} | {$member.gender}</span>
+	</div>
+{/if}
 
 <style lang="scss" scoped>
 	.item {
 		width: 100%;
 		/* height: 100%; */
 
-		border: 1px solid orange;
+		// border: 1px solid orange;
 
 		padding: 8px 0;
 
@@ -25,6 +31,10 @@
 		cursor: pointer;
 
 		transition: opacity 100ms ease;
+
+		span {
+			margin: 8px;
+		}
 	}
 
 	:global(.sortable-ghost) {

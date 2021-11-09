@@ -1,6 +1,7 @@
 import { writable, Writable } from 'svelte/store';
 import { get } from 'svelte/store';
-import members from '../stores/members';
+import { getMember, mems_in_crews } from '../stores/members';
+import crews from '../stores/crews';
 import type { Options as SortableOptions } from 'sortablejs';
 
 export type AgeGroup = 'U15' | 'U16' | 'U17' | 'U18';
@@ -15,13 +16,9 @@ export const SORTABLE_CONFIG: SortableOptions = {
 	easing: 'cubic-bezier(0.33, 1, 0.68, 1)',
 	dataIdAttr: 'data-id',
 	filter: '.empty',
-	forceFallback: true,
+	forceFallback: false,
 	swapThreshold: 1,
-	setData: (dataTransfer: DataTransfer, draggedElement: HTMLElement) => {
-		if (draggedElement.getAttribute('data-id') == null) return;
-
-		dataTransfer.setData('id', draggedElement.getAttribute('data-id'));
-	},
+	direction: 'vertical',
 };
 
 // #region EXPORTED INTERFACES
@@ -38,9 +35,9 @@ export interface CrewInterface {
 	crewName?: string;
 	boatName?: string;
 	oars?: string;
-	coach?: { id: number; name: string };
+	coach?: string;
 	boatSize?: BoatSize;
-	seats?: (CrewMemberInterface | null)[];
+	seats?: (number | null)[];
 }
 // #endregion
 
@@ -71,13 +68,11 @@ export class CrewMember {
 	public gender?: Gender;
 	public is_novice?: boolean;
 	public is_loading: boolean;
-	public is_in_crew: boolean;
 
 	public constructor(id: number);
 	public constructor(params: CrewMemberInterface);
 
 	public constructor(...args: any[]) {
-		this.is_in_crew = false;
 		if (typeof args[0] == 'number') {
 			this.id = args[0];
 
@@ -216,21 +211,27 @@ export class Crew {
 
 	is_valid: boolean;
 
-	is_loading: boolean;
+	is_loading: Writable<boolean> = writable(true);
 
-	public constructor({ size: number });
-	public constructor({ id: number });
+	public onChange: () => void;
 
-	public constructor(args: any) {
+	public constructor({ size: number }, updater?: () => void);
+	public constructor({ id: number }, updater?: () => void);
+	public constructor(args: CrewAPIInterface, updater?: () => void);
+
+	public constructor(args: any, updater?: () => void) {
+		this.onChange = updater || (() => {});
+
 		if (args.id) {
 			this.id = args.id;
 			this.crewName = '';
 			this.boatName = '';
 			this.oars = '';
 			this.coach = '';
+			this.seats = [];
 
 			// Fetch the crew from /api/crews/:id
-			this.is_loading = true;
+			this.is_loading.set(true);
 			fetch(`/api/crews/${this.id}`).then((response) => {
 				response.json().then((value: CrewAPIInterface) => {
 					console.log({ value });
@@ -243,19 +244,27 @@ export class Crew {
 
 					// gets the members store and finds the crew members with the ids given from the API, it the stores them in the crew, if the member doesnt exist, it stores null in its place
 					this.seats = value.seats.map((id) => {
-						if (id == null) return writable(null);
-						get(members).forEach((member) => {
-							if (get(member).id == id) {
-								return member;
-							}
-						});
+						let mem = getMember(id);
 
-						this.is_loading = false;
-						return;
+						if (get(mem) != null)
+							mem.update((m) => {
+								// @ts-ignore
+								mems_in_crews.update((m) => {
+									return [...m, id];
+								});
+								return m;
+							});
+
+						return mem;
 					});
+
+					this.is_loading.set(false);
+
+					if (this.onChange) this.onChange();
+					return;
 				});
 			});
-		} else {
+		} else if (args.size) {
 			// Otherwise intialise the crew with default values
 			this.id = -1;
 			this.crewName = '';
@@ -267,12 +276,26 @@ export class Crew {
 			// fill the seats array with nulls for all the seats
 			this.seats = Array.apply('none', Array(+this.boatSize));
 
-			console.log(this);
+			if (this.onChange) this.onChange();
+		} else if (args.crewName) {
+			// args is a CrewApiInteface
+			this.id = args.id;
+			this.crewName = args.crewName;
+			this.boatName = args.boatName;
+			this.oars = args.oars;
+			this.coach = args.coach;
+			this.boatSize = args.size;
+			this.seats = args.seats.map((id) => {
+				return getMember(id);
+			});
+
+			if (this.onChange) this.onChange();
+			this.is_loading.set(false);
 		}
 
 		setInterval(() => {
 			this.save();
-		}, 1000);
+		}, 100);
 	}
 
 	// a function that converts this crew into a CrewApiInterface to be sent to the server
@@ -285,18 +308,34 @@ export class Crew {
 			size: this.boatSize,
 			seats: this.seats.map((member) => {
 				if (get(member) == null) return -1;
-
 				return get(member).id;
 			}),
 		};
 	}
+
+	// a public function that returns the object as a CrewInterface
+	public toInterface(): CrewInterface {
+		return {
+			id: this.id,
+			crewName: this.crewName,
+			boatName: this.boatName,
+			oars: this.oars,
+			coach: this.coach,
+			boatSize: this.boatSize,
+			seats: this.seats.map((member) => {
+				if (get(member) == null) return -1;
+				return get(member).id;
+			}),
+		};
+	}
+
 	// a function that saves the crew to the server
 	private save() {
-		if (this.is_loading || !this.is_valid) return;
+		if (get(this.is_loading) || !this.is_valid) return;
 
-		if (this.has_changed && !this.is_loading) {
+		if (this.has_changed && !get(this.is_loading)) {
 			// create an XHR to send a PUT request to /api/crews/:id
-			this.is_loading = true;
+			this.is_loading.set(true);
 
 			let xhr = new XMLHttpRequest();
 
@@ -312,7 +351,7 @@ export class Crew {
 					console.error(JSON.parse(xhr.responseText));
 				}
 
-				this.is_loading = false;
+				this.is_loading.set(false);
 				this.has_changed = false;
 			};
 
@@ -323,6 +362,47 @@ export class Crew {
 			}
 			xhr.setRequestHeader('Content-Type', 'application/json');
 			xhr.send(JSON.stringify(this.toAPI()));
+		}
+	}
+
+	// a function that deletes the crew from the server
+	delete() {
+		this.is_loading.set(true);
+
+		// confirm the deletion
+		if (confirm(`Are you sure you want to delete ${this.crewName}?`)) {
+			let xhr = new XMLHttpRequest();
+
+			xhr.onreadystatechange = (_ev: Event) => {
+				if (xhr.readyState == 4 && xhr.status.toString()[0] == '2') {
+					console.log(JSON.parse(xhr.responseText));
+					console.info(`Successfully deleted ${this.crewName}`);
+				} else if (['4', '5'].includes(xhr.status.toString()[0])) {
+					console.error(`Failed to delete ${this.crewName}`);
+					console.error(JSON.parse(xhr.responseText));
+				}
+
+				mems_in_crews.update((m) => {
+					let crewMemIds = this.seats.map((member) => {
+						return get(member).id;
+					});
+
+					return m.filter((v) => {
+						return crewMemIds.includes(v);
+					});
+				});
+
+				crews.update((cr) => {
+					return cr.filter((c) => {
+						return get(c).id != this.id;
+					});
+				});
+
+				this.is_loading.set(false);
+			};
+
+			xhr.open('DELETE', `/api/crews/${this.id}`);
+			xhr.send();
 		}
 	}
 }

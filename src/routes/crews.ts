@@ -53,15 +53,6 @@ router.post('/', async (req: Request, res: Response) => {
 				crew.size
 			);
 
-			// try {
-			// 	await crewRepo.save(cr);
-			// } catch (e) {
-			// 	res.status(500)
-			// 		.json({ message: 'UNABLE TO SAVE CREW', error: e })
-			// 		.send();
-			// 	return;
-			// }
-
 			try {
 				await crewRepo.save(cr);
 
@@ -69,9 +60,11 @@ router.post('/', async (req: Request, res: Response) => {
 
 				await crewRepo.save(cr);
 			} catch (e) {
-				res.json({ message: 'error saving crew', error: e })
-					.status(500)
-					.send();
+				res.status(500).json({
+					message: 'error saving crew',
+					error: e,
+				});
+
 				return;
 			}
 
@@ -82,20 +75,16 @@ router.post('/', async (req: Request, res: Response) => {
 					if (val != null) {
 						return new Promise(async (resolve, reject) => {
 							let cm = await crewMemberRepo.findOne({ id: val });
-
+							let s;
 							if (!cm) {
-								res.status(400).json({
-									message: 'CREW MEMBER NON EXISTENT',
-								});
-
-								reject({});
+								s = new Seat(index + 1, -1, cr.seats!);
 							} else {
-								let s = new Seat(index + 1, cm!.id, cr.seats!);
-
-								seatsRepo.save(s);
-
-								resolve({});
+								s = new Seat(index + 1, cm!.id, cr.seats!);
 							}
+
+							seatsRepo.save(s);
+
+							resolve({});
 						});
 					}
 				})
@@ -108,18 +97,16 @@ router.post('/', async (req: Request, res: Response) => {
 			}
 			// THIS MAY OR MAY NOT BREAK
 			// I AM VERY SCARED THAT THIS WON'T WORK
-			res.json({ id: cr.id }).status(200).send();
+			res.status(200).json({ id: cr.id });
 		} catch (e) {
-			res.json({
+			res.status(500).json({
 				message: 'an error has occured',
 				error: e,
-			}).status(500);
+			});
 		}
 	} catch (e) {
-		res.json({ message: 'missing body parts', error: e }).status(400);
+		res.status(400).json({ message: 'missing body parts', error: e });
 	}
-
-	res.send();
 });
 
 /**
@@ -131,14 +118,11 @@ router.get('/count', async (req: Request, res: Response) => {
 	try {
 		const repo = getRepository(Crew);
 
-		res.json({ message: 'success', count: await repo.count() })
-			.status(200)
-			.send();
+		res.status(200).json({ message: 'success', count: await repo.count() });
+
 		return;
 	} catch (e) {
-		res.json({ message: 'an error has occured', error: e })
-			.status(500)
-			.send();
+		res.status(500).json({ message: 'an error has occured', error: e });
 	}
 });
 
@@ -148,8 +132,7 @@ router.get('/ids', async (req: Request, res: Response) => {
 
 		let cs = await repo.createQueryBuilder('c').select('c.id').getMany();
 
-		res.json(cs.map((c) => c.id));
-		res.status(200).send();
+		res.status(200).json(cs.map((c) => c.id));
 	} catch (e) {
 		console.error(e);
 	}
@@ -161,7 +144,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 		const seatsRepo = getRepository(Seat);
 
 		if (!(await repo.findOne({ id: req.params.id as unknown as number }))) {
-			res.status(404);
+			res.status(404).json({ message: 'crew not found' });
 			return;
 		}
 
@@ -184,18 +167,15 @@ router.get('/:id', async (req: Request, res: Response) => {
 					order: { seat: 'ASC' },
 				})
 			).map((s) => {
-				if (s.crewMember == -1) return null;
 				return s.crewMember;
 			}),
 		};
 
-		res.json(int).status(200);
+		res.status(200).json(int);
 		return;
 	} catch (e) {
-		res.json({ message: 'an error has occured', error: e });
+		res.status(500).json({ message: 'an error has occured', error: e });
 	}
-
-	res.send();
 });
 
 /**
@@ -216,7 +196,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 		!req.body.oars
 	) {
 		console.log('MISSING PART OF BODY', req.body);
-		res.json({ message: 'missing part of body' }).status(400).send();
+		res.status(400).json({ message: 'missing part of body' });
 		return;
 	}
 
@@ -227,14 +207,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 			id: req.params.id as unknown as number,
 		});
 	} catch (e) {
-		res.json({ message: 'id was not a number', error: e })
-			.status(400)
-			.send();
+		res.status(400).json({ message: 'id was not a number', error: e });
+
 		return;
 	}
 
 	if (!crew) {
-		res.json({ message: 'not found' }).status(404).send();
+		res.status(404).json({ message: 'not found' });
 		return;
 	}
 
@@ -255,7 +234,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 		let toDelete = await seatsRepo.find({ where: { crewId: crew.id } });
 
 		toDelete.forEach(async (val) => {
-			await seatsRepo.delete(val);
+			await seatsRepo.delete(val.id);
 		});
 
 		await Promise.all(
@@ -277,13 +256,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 			})
 		);
 	} catch (e) {
-		res.json({ message: 'server side error', error: e }).status(500).send();
+		res.status(500).json({ message: 'server side error', error: e });
 		return;
 	}
 
 	repo.save(crew);
 
-	res.json(crew).status(200).send();
+	res.status(200).json(crew);
 });
 
 /**
@@ -292,30 +271,34 @@ router.put('/:id', async (req: Request, res: Response) => {
  * TODO: THIS
  */
 router.delete('/:id', async (req: Request, res: Response) => {
-	const repo = getRepository(Crew);
-	const seatsRepo = getRepository(Seat);
+	try {
+		const repo = getRepository(Crew);
+		const seatsRepo = getRepository(Seat);
 
-	if (parseInt(req.params.id) == NaN) {
-		res.json({ message: 'invalid id' }).status(400).send();
-		return;
-	}
-
-	let crew = await repo.findOne({ id: parseInt(req.params.id) });
-
-	if (!crew) {
-		res.json({ message: 'crew not found' }).status(404).send();
-		return;
-	}
-
-	(await seatsRepo.find({ where: { crewId: crew.id } })).forEach(
-		async (val) => {
-			seatsRepo.delete(val);
+		if (parseInt(req.params.id) == NaN) {
+			res.json({ message: 'invalid id' }).status(400);
+			throw new Error('invalid id');
 		}
-	);
 
-	await repo.delete(crew);
+		let crew = await repo.findOne({ id: parseInt(req.params.id) });
 
-	res.json({ message: 'success' }).status(204).send();
+		if (!crew) {
+			res.json({ message: 'crew not found' }).status(404);
+			throw new Error('crew not found');
+		}
+
+		(await seatsRepo.find({ where: { crewId: crew.id } })).forEach(
+			async (val) => {
+				await seatsRepo.delete(val.id);
+			}
+		);
+
+		await repo.delete(crew.id);
+
+		res.status(204).json({ message: 'success' });
+	} catch (e) {
+		console.error(e);
+	}
 });
 
 // MUST BE AT BOTTOM

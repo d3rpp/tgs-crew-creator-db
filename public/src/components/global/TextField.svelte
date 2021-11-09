@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let placeholder = ' ';
 	export let value = '';
+	export let onChange: (ev: any) => void = () => {};
 
 	export let label = '';
 
@@ -14,6 +15,7 @@
 <div class="text-field">
 	<input
 		type="text"
+		on:input={onChange}
 		bind:value
 		{placeholder}
 		name={label}

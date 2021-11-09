@@ -58,7 +58,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 		let { id } = await repo.save(toSave);
 
-		res.json({ status: 'success', id: id }).status(201).send();
+		res.status(201).json({ status: 'success', id: id });
 	} catch (e) {
 		console.error(e);
 	}
@@ -109,22 +109,20 @@ router.get('/:id', async (req: Request, res: Response) => {
 		const repo = getRepository(CrewMember);
 
 		if (+req.params.id <= 0) {
-			res.json({ message: 'not found' }).status(404).send();
+			res.status(404).json({ message: 'not found' });
 			return;
 		}
 
 		let b = await repo.findOne({ id: +req.params.id });
 
 		if (b) {
-			res.json({
+			res.status(200).json({
 				id: b.id,
 				name: b.name,
 				ageGroup: b.ageGroup,
 				gender: b.gender,
 				novice: b.novice,
-			})
-				.status(200)
-				.send();
+			});
 		}
 	} catch (e) {
 		console.error(e);
@@ -149,7 +147,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 		let found = await repo.findOne({ id: +req.params.id });
 
 		if (!found) {
-			res.status(404).json({ message: 'not found' }).send();
+			res.status(404).json({ message: 'not found' });
 		} else {
 			let int = req.body as CrewMemberInterface;
 
@@ -184,17 +182,15 @@ router.delete('/:id', async (req: Request, res: Response) => {
 				try {
 					await repo.delete({ id: +req.params.id });
 				} catch (e) {
-					res.json({ message: 'invalid id' }).status(400).send();
+					res.status(400).json({ message: 'invalid id' });
 				}
 
-				res.json({ message: 'done', id: req.params.id })
-					.status(200)
-					.send();
+				res.status(200).json({ message: 'done', id: req.params.id });
 			} else {
-				res.json({ message: 'not found' }).status(404).send();
+				res.status(404).json({ message: 'not found' });
 			}
 		} else {
-			res.json({ message: 'error has occured' }).status(500).send();
+			res.status(500).json({ message: 'error has occured' });
 		}
 	} catch (e) {
 		console.error(e);

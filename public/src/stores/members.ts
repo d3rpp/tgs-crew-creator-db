@@ -1,5 +1,5 @@
 import { get, writable, Writable } from 'svelte/store';
-import type { CrewMember } from '../types';
+import type { CrewMember } from '../types/index';
 
 const writ = writable<Writable<CrewMember>[]>([], () => {
 	console.log('Subscriber Detected ON CREW MEMBERS');
@@ -12,12 +12,13 @@ export const getMember = (
 ): Writable<CrewMember> | Writable<null> => {
 	if (id < 0) return writable(null);
 
-	get(writ).forEach((member) => {
-		if (get(member).id === id) {
-			return member;
-		}
-	});
-	return null;
+	const member = get(writ).find((member) => get(member).id === id);
+
+	if (member != undefined) return member;
+
+	return writable(null);
 };
+
+export const mems_in_crews = writable<number[]>([]);
 
 export default writ;

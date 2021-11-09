@@ -2,8 +2,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { get, writable } from 'svelte/store';
 	import type { Writable } from 'svelte/store';
-	import { CrewMember } from '../../types';
-	import type { CrewMemberInterface } from '../../types';
+	import { CrewMember } from '../../types/index';
+	import type { CrewMemberInterface } from '../../types/index';
 	import AnimateOnChangeSpan from '../global/animateOnChangeSPAN.svelte';
 	import members from '../../stores/members';
 

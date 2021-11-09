@@ -2,7 +2,7 @@
 	import type { Writable } from 'svelte/store';
 
 	import { memberEditorBuffer } from '../stores/buffers';
-	import type { CrewMember } from '../types';
+	import type { CrewMember } from '../types/index';
 
 	import members from '../stores/members';
 
@@ -19,7 +19,7 @@
 	id="member-editor"
 	class="page"
 	in:fly={{ duration: 200, delay: 200, y: 10 }}
-	out:fly={{ duration: 200, y: 10 }}
+	out:fly={{ duration: 200, y: -10 }}
 >
 	<div class="title">
 		<h1>Member Editor</h1>
