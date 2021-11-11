@@ -24,6 +24,21 @@ to run this, you require
 ## MacOS / Linux
 In MacOS and Linux, the commands are the same, use
 
+First you'll need to run
+
+```
+npm install
+```
+
+then go into the `public` folder
+
+```
+cd public
+npm install
+```
+
+from there, go to the root and type
+
 ```
 	npm run unix
 ```
@@ -56,6 +71,21 @@ to start the server, this'll also serve the front-end
 
 ## Windows
 this is untested but it should work, let me know if it doesnt idk windows its bad
+
+First you'll need to run
+
+```
+npm install
+```
+
+then go into the `public` folder
+
+```
+cd public
+npm install
+```
+
+from there, go to the root and type
 
 ```
 	npm run win
