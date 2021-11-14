@@ -23,7 +23,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://git.d3rpp.dev/tgs-crew-creator-db"
+		"url": "https://github.com/d3rpp/tgs-crew-creator-db"
 	},
 	"author": "Hudson Curren <hudson.curren@icloud.com>",
 	"license": "MIT",
