@@ -12,6 +12,7 @@
 		"unix:init:drop-db-old": "mysql -u root -e \"DROP DATABASE IF EXISTS HUDSON_CURREN_TGS_CREW_CREATOR; CREATE DATABASE IF NOT EXISTS HUDSON_CURREN_TGS_CREW_CREATOR;\"",
 		"unix:init:drop-db": "node ./util/db.js",
 		"unix:serve": "cd ./public; npm run build; cd ..; npm run unix:dev;",
+		"unix:get-queries": "npm run unix:dev > /tmp/cc.txt; cat /tmp/cc.txt | grep \"query\" | tee queries.txt; rm -f /tmo/cc.txt",
 		"win": "DOSKEY clear=cls && npm run win:init && npm run win:fe:build && npm run win:dev",
 		"win:dev": "tsc-watch --rootDir \"./src\" --excludeDirectories 'public' --onSuccess \"node ./build/index.js\"",
 		"win:fe:build": "cd public && npm i && npm run win:build",

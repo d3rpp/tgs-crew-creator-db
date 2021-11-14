@@ -97,9 +97,10 @@ router.get('/ids', async (req: Request, res: Response) => {
 
 		let cms = await repo.createQueryBuilder('cm').select('cm.id').getMany();
 
-		res.json(cms.map((cm) => cm.id));
-		res.status(200).send();
+		res.status(200).json(cms.map((cm) => cm.id));
 	} catch (e) {
+		// @ts-ignore
+		res.status(500).json({ status: 'error', message: e.message });
 		console.error(e);
 	}
 });
