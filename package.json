@@ -15,7 +15,7 @@
 		"unix:get-queries": "npm run unix:dev > /tmp/cc.txt; cat /tmp/cc.txt | grep \"query\" | tee queries.txt; rm -f /tmo/cc.txt",
 		"win": "DOSKEY clear=cls && npm run win:init && npm run win:fe:build && npm run win:dev",
 		"win:dev": "tsc-watch --rootDir \"./src\" --excludeDirectories 'public' --onSuccess \"node ./build/index.js\"",
-		"win:fe:build": "cd public && npm i && npm run win:build",
+		"win:fe:build": "cd public && npm i && npm run build",
 		"win:init": "npm i && cd public && npm i && cd .. && npm run win:init:db",
 		"win:init:db": "npm run win:init:drop-db && cd util && echo \"Setting Up DB\" && echo \"COMPILING\" && tsc initSchema.ts --outDir .tmp --experimentalDecorators --emitDecoratorMetadata && echo \"running\" && node .tmp\\util\\initSchema.js",
 		"win:init:drop-db": "node ./util/db.js",
