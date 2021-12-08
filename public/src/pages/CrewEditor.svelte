@@ -28,7 +28,7 @@
 	in:fly={{ duration: 200, delay: 200, y: 10 }}
 	out:fly={{ duration: 200, y: -10 }}
 >
-	<div class="title"><h1>Crew Display</h1></div>
+	<div class="title"><h1>Crew Editor</h1></div>
 	<div class="editors">
 		{#each $crews as c (get(c).id)}
 			<CrewEditorItem crew={c} />
